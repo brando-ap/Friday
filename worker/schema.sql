@@ -35,9 +35,9 @@ create table if not exists activity_log (
 create index if not exists idx_subtasks_task on subtasks(task_id);
 create index if not exists idx_activity_task on activity_log(task_id);
 
--- The Worker talks to these tables with the service_role key, which bypasses
--- Row Level Security. We still enable RLS with no policies so that the public
--- anon key cannot touch the data directly — only the server-side Worker can.
+-- The Worker talks to these tables with a Supabase secret key (sb_secret_...),
+-- which bypasses Row Level Security. We still enable RLS with no policies so the
+-- publishable key cannot touch the data directly — only the server-side Worker can.
 alter table tasks        enable row level security;
 alter table subtasks     enable row level security;
 alter table activity_log enable row level security;

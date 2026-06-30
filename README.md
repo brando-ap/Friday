@@ -17,23 +17,24 @@ It does three things on purpose, and nothing else (yet):
 | Backend  | Cloudflare Worker + Hono (`worker/`)   | Cloudflare Workers|
 | Database | Supabase (Postgres) via `supabase-js`  | Supabase          |
 
-The Worker is the only thing that touches the database, using the Supabase
-**service_role** key (kept server-side). The browser only ever talks to the Worker.
+The Worker is the only thing that touches the database, using a Supabase
+**secret API key** (`sb_secret_…`, kept server-side). The browser only ever talks to the Worker.
 
 ## One-time setup
 
 **1. Create the database (Supabase)**
 - Make a free project at <https://supabase.com>.
 - SQL Editor → New query → paste `worker/schema.sql` → Run.
-- Project Settings → API → copy the **Project URL** and the **service_role** key.
+- Project Settings → **API** → copy the **Project URL**.
+- Project Settings → **API Keys** → **Secret keys** → create one → copy it (starts with `sb_secret_`).
 
 **2. Point the Worker at it + set a password (local)**
 ```bash
 cp worker/.dev.vars.example worker/.dev.vars
 # edit worker/.dev.vars and fill in:
-#   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY   (from Supabase)
-#   APP_PASSWORD                              (what you type to log in)
-#   JWT_SECRET                                (signs your session token)
+#   SUPABASE_URL, SUPABASE_SECRET_KEY   (from Supabase)
+#   APP_PASSWORD                        (what you type to log in)
+#   JWT_SECRET                          (signs your session token)
 # Generate a JWT_SECRET with:
 #   node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
 ```
@@ -64,7 +65,7 @@ npm run check:api   # wrangler dry-run build — proves it compiles for the Work
 cd worker
 npx wrangler login
 npx wrangler secret put SUPABASE_URL
-npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY
+npx wrangler secret put SUPABASE_SECRET_KEY
 npx wrangler secret put APP_PASSWORD
 npx wrangler secret put JWT_SECRET
 npx wrangler deploy          # prints your https://friday-api.<you>.workers.dev URL
