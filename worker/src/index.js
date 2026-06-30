@@ -6,9 +6,13 @@ import * as repo from './repo.js';
 
 const app = new Hono();
 
+// Only let the deployed frontend (and its Pages preview deployments) call the API
+// from a browser. Non-browser clients (no Origin header) are unaffected.
+const ALLOWED_ORIGIN = /^https:\/\/([a-z0-9-]+\.)?friday-1h7\.pages\.dev$/;
 app.use(
   '/api/*',
   cors({
+    origin: (origin) => (origin && ALLOWED_ORIGIN.test(origin) ? origin : undefined),
     allowHeaders: ['Content-Type', 'Authorization'],
     allowMethods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
   })
