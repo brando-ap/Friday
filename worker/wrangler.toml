@@ -1,0 +1,12 @@
+name = "friday-api"
+main = "src/index.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# Local dev server (Vite proxies /api here). Override with `wrangler dev --port`.
+[dev]
+port = 8787
+
+# SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are NOT set here.
+#   Local:      put them in worker/.dev.vars  (git-ignored)
+#   Production: `wrangler secret put SUPABASE_URL` and `... SUPABASE_SERVICE_ROLE_KEY`

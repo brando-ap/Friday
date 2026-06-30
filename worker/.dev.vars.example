@@ -1,0 +1,8 @@
+# Copy this file to `worker/.dev.vars` and fill in your Supabase project values.
+# Find them in Supabase: Project Settings -> API.
+#   SUPABASE_URL              = the "Project URL"
+#   SUPABASE_SERVICE_ROLE_KEY = the "service_role" secret (NOT the anon key)
+# The service_role key bypasses Row Level Security, so it must stay server-side only.
+
+SUPABASE_URL="https://your-project-ref.supabase.co"
+SUPABASE_SERVICE_ROLE_KEY="your-service-role-key"
