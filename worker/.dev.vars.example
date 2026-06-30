@@ -1,8 +1,15 @@
-# Copy this file to `worker/.dev.vars` and fill in your Supabase project values.
-# Find them in Supabase: Project Settings -> API.
+# Copy this file to `worker/.dev.vars` and fill in the values.
+
+# --- Supabase (Project Settings -> API) ---
 #   SUPABASE_URL              = the "Project URL"
 #   SUPABASE_SERVICE_ROLE_KEY = the "service_role" secret (NOT the anon key)
 # The service_role key bypasses Row Level Security, so it must stay server-side only.
-
 SUPABASE_URL="https://your-project-ref.supabase.co"
 SUPABASE_SERVICE_ROLE_KEY="your-service-role-key"
+
+# --- Auth ---
+#   APP_PASSWORD = the password you'll type to log in
+#   JWT_SECRET   = a long random string used to sign session tokens. Generate one with:
+#                  node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
+APP_PASSWORD="choose-a-strong-password"
+JWT_SECRET="paste-a-long-random-string"

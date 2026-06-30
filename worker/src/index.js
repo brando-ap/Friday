@@ -1,16 +1,68 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import { sign, verify } from 'hono/jwt';
 import { getDb } from './supabase.js';
 import * as repo from './repo.js';
 
 const app = new Hono();
 
-// Allow the frontend origin to call the API (needed once the Pages site and the
-// Worker live on different origins; harmless in local dev behind the Vite proxy).
-app.use('/api/*', cors());
+app.use(
+  '/api/*',
+  cors({
+    allowHeaders: ['Content-Type', 'Authorization'],
+    allowMethods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+  })
+);
+
+// ---------------------------------------------------------------------------
+// Auth: a single shared password gates everything except /health and /login.
+// Login returns a 30-day signed JWT; every other route requires it as a Bearer.
+// ---------------------------------------------------------------------------
+const PUBLIC_PATHS = new Set(['/api/health', '/api/login']);
+const TOKEN_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
+
+// Constant-time compare so a wrong password can't be guessed by timing.
+function timingSafeEqual(a, b) {
+  const enc = new TextEncoder();
+  const ab = enc.encode(a);
+  const bb = enc.encode(b);
+  if (ab.length !== bb.length) return false;
+  let diff = 0;
+  for (let i = 0; i < ab.length; i++) diff |= ab[i] ^ bb[i];
+  return diff === 0;
+}
+
+app.use('/api/*', async (c, next) => {
+  if (PUBLIC_PATHS.has(c.req.path)) return next();
+  const header = c.req.header('Authorization') || '';
+  const token = header.startsWith('Bearer ') ? header.slice(7) : '';
+  if (!token || !c.env.JWT_SECRET) return c.json({ error: 'unauthorized' }, 401);
+  try {
+    await verify(token, c.env.JWT_SECRET, 'HS256'); // throws on bad signature or expiry
+  } catch {
+    return c.json({ error: 'unauthorized' }, 401);
+  }
+  return next();
+});
+
+app.post('/api/login', async (c) => {
+  if (!c.env.APP_PASSWORD || !c.env.JWT_SECRET) {
+    return c.json({ error: 'auth not configured — set APP_PASSWORD and JWT_SECRET' }, 500);
+  }
+  const body = await c.req.json().catch(() => ({}));
+  if (!timingSafeEqual(body.password || '', c.env.APP_PASSWORD)) {
+    return c.json({ error: 'wrong password' }, 401);
+  }
+  const exp = Math.floor(Date.now() / 1000) + TOKEN_TTL_SECONDS;
+  const token = await sign({ sub: 'owner', exp }, c.env.JWT_SECRET, 'HS256');
+  return c.json({ token });
+});
 
 app.get('/api/health', (c) => c.json({ ok: true }));
 
+// ---------------------------------------------------------------------------
+// Tasks (all protected by the auth middleware above)
+// ---------------------------------------------------------------------------
 app.get('/api/tasks', async (c) => {
   return c.json(await repo.listTasks(getDb(c.env)));
 });

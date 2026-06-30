@@ -27,10 +27,15 @@ The Worker is the only thing that touches the database, using the Supabase
 - SQL Editor → New query → paste `worker/schema.sql` → Run.
 - Project Settings → API → copy the **Project URL** and the **service_role** key.
 
-**2. Point the Worker at it (local)**
+**2. Point the Worker at it + set a password (local)**
 ```bash
 cp worker/.dev.vars.example worker/.dev.vars
-# edit worker/.dev.vars and paste your SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY
+# edit worker/.dev.vars and fill in:
+#   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY   (from Supabase)
+#   APP_PASSWORD                              (what you type to log in)
+#   JWT_SECRET                                (signs your session token)
+# Generate a JWT_SECRET with:
+#   node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
 ```
 
 **3. Install**
@@ -60,6 +65,8 @@ cd worker
 npx wrangler login
 npx wrangler secret put SUPABASE_URL
 npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY
+npx wrangler secret put APP_PASSWORD
+npx wrangler secret put JWT_SECRET
 npx wrangler deploy          # prints your https://friday-api.<you>.workers.dev URL
 ```
 
@@ -71,11 +78,10 @@ npx wrangler deploy          # prints your https://friday-api.<you>.workers.dev 
 ## Roadmap
 
 **Shipped (MVP)** — quick capture, date-sorted list with urgency colors, all core fields,
-status with a *Waiting* state, steps/sub-tasks, activity log.
+status with a *Waiting* state, steps/sub-tasks, activity log, **password login** (shared
+password → 30-day signed JWT on every request).
 
 **Phase 2**
 - "Waiting > N days" follow-up flag pinned to the top of the morning view (the gentle poke).
 - Requester analytics — who sends you the most, so you can spot the systemic problems.
 - Warehouse SMS button on `location: warehouse` tasks — pre-fills a text to the main guy.
-- A login (the Worker is currently open; add Supabase Auth or a shared secret before
-  putting real data on a public URL).

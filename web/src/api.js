@@ -1,12 +1,31 @@
+import { getToken, clearToken } from './auth.js';
+
 // Dev: '/api' is proxied to the local Worker by Vite.
 // Prod: set VITE_API_BASE to the deployed Worker URL, e.g. https://friday-api.<you>.workers.dev/api
 const BASE = (import.meta.env.VITE_API_BASE || '/api').replace(/\/+$/, '');
 
-async function req(path, options) {
+// App.jsx registers a handler here so any 401 kicks the user back to the login screen.
+let onAuthError = () => {};
+export function setAuthErrorHandler(fn) {
+  onAuthError = fn;
+}
+
+async function req(path, { skipAuthRedirect, headers, ...options } = {}) {
+  const token = getToken();
   const res = await fetch(BASE + path, {
-    headers: { 'Content-Type': 'application/json' },
     ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(headers || {}),
+    },
   });
+
+  if (res.status === 401 && !skipAuthRedirect) {
+    clearToken();
+    onAuthError();
+    throw new Error('Session expired — please sign in again');
+  }
   if (!res.ok) {
     let msg = res.statusText;
     try {
@@ -21,6 +40,8 @@ async function req(path, options) {
 }
 
 export const api = {
+  login: (password) =>
+    req('/login', { method: 'POST', body: JSON.stringify({ password }), skipAuthRedirect: true }),
   listTasks: () => req('/tasks'),
   getTask: (id) => req(`/tasks/${id}`),
   createTask: (data) => req('/tasks', { method: 'POST', body: JSON.stringify(data) }),

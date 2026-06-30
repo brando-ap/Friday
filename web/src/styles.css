@@ -227,3 +227,61 @@ body {
   cursor: pointer;
 }
 .delete:hover { background: #fef2f2; }
+
+/* ---- Auth ---- */
+.logout {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 12px;
+  font-size: 13px;
+  color: var(--muted);
+  cursor: pointer;
+}
+.logout:hover { border-color: var(--overdue); color: var(--overdue); }
+
+.login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.login-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 28px;
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.login-card h1 { margin: 0; font-size: 24px; }
+.login-card p { margin: 0; color: var(--muted); font-size: 14px; }
+.login-card input {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 15px;
+}
+.login-card button {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.login-card button:disabled { opacity: 0.5; cursor: default; }
+.login-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: var(--overdue);
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+}
