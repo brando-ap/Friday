@@ -1,0 +1,117 @@
+.landing {
+  --bg: #f7ede0;
+  --band: #efe2d1;
+  --ink: #33281c;
+  --text2: #6b5a45;
+  --muted: #a08d75;
+  --coral: #ef6b4d;
+  --coral-hover: #e05c3f;
+  --coral-deep: #c14a2a;
+  --coral-pale: #ffe0cb;
+  --teal: #17948c;
+  --teal-hover: #147d76;
+  --teal-deep: #12564f;
+  --teal-pale: #c6efe9;
+  --green: #3fa564;
+  --border: #eadfce;
+  --footer-bg: #33281c;
+  --note-bg: #eae1d3;
+
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Hanken Grotesk', system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+.landing h1, .landing h2 { font-family: 'Schibsted Grotesk', system-ui, sans-serif; margin: 0; }
+
+/* Nav */
+.landing-nav { display: flex; align-items: center; justify-content: space-between; padding: 22px 6vw; max-width: 1280px; margin: 0 auto; }
+.landing-logo { display: flex; align-items: center; gap: 11px; text-decoration: none; color: inherit; }
+.landing-logo-mark { width: 34px; height: 34px; border-radius: 11px; background: var(--coral); display: flex; align-items: center; justify-content: center; color: #fff; font-family: 'Schibsted Grotesk'; font-weight: 700; font-size: 17px; }
+.landing-logo-word { font-family: 'Schibsted Grotesk'; font-weight: 700; font-size: 19px; letter-spacing: -0.02em; }
+.landing-nav-links { display: flex; align-items: center; gap: 26px; font-size: 14px; font-weight: 600; color: var(--text2); }
+.landing-nav-right { display: flex; align-items: center; gap: 16px; }
+.landing-loginlink { font-size: 14px; font-weight: 600; color: var(--ink); text-decoration: none; }
+.landing-loginlink:hover { text-decoration: underline; }
+
+/* Buttons */
+.landing-btn { display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; font-weight: 700; text-decoration: none; cursor: pointer; border: none; font-family: inherit; transition: background .15s, border-color .15s, transform .06s; }
+.landing-btn:active { transform: translateY(1px); }
+.landing-btn:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+.landing-btn-coral { background: var(--coral); color: #fff; }
+.landing-btn-coral:hover { background: var(--coral-hover); }
+.landing-btn-teal { background: var(--teal); color: #fff; }
+.landing-btn-teal:hover { background: var(--teal-hover); }
+.landing-btn-outline { background: #fff; border: 1.5px solid #e4d3bd; color: var(--ink); font-weight: 600; cursor: default; }
+.landing-btn-outline:hover { border-color: #d8c1a2; }
+.landing-btn-white { background: #fff; color: var(--teal-deep); }
+.landing-btn-white:hover { background: #f3ede2; }
+.landing-nav-cta { padding: 10px 20px; font-size: 14px; }
+
+/* Hero */
+.landing-hero { display: grid; grid-template-columns: 1.05fr 1fr; gap: 36px; align-items: center; padding: 44px 6vw 68px; max-width: 1280px; margin: 0 auto; }
+.landing-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--coral-pale); color: var(--coral-deep); font-size: 12.5px; font-weight: 700; padding: 7px 14px; border-radius: 999px; }
+.landing-h1 { font-weight: 800; font-size: 58px; line-height: 1; letter-spacing: -0.02em; margin-top: 20px; }
+.landing-h1 .accent { color: var(--coral); }
+.landing-lead { font-size: 18px; line-height: 1.55; color: var(--text2); margin: 20px 0 0; max-width: 440px; }
+.landing-hero-actions { display: flex; gap: 14px; margin-top: 30px; flex-wrap: wrap; }
+.landing-hero-actions .landing-btn { padding: 15px 28px; font-size: 15.5px; }
+.landing-hero-actions .landing-btn-outline { padding: 14px 24px; }
+
+/* Hero visual: incoming texts cross-fading into resolved tasks */
+.landing-visual { position: relative; height: 400px; display: flex; flex-direction: column; justify-content: center; gap: 15px; max-width: 420px; margin-left: auto; width: 100%; }
+.landing-visual-row { position: relative; height: 64px; }
+.landing-msg { position: absolute; inset: 0; background: var(--note-bg); border-radius: 16px 16px 16px 5px; padding: 13px 16px; animation: efA 6s ease-in-out infinite; }
+.landing-msg-text { font-size: 13.5px; color: #7a6b57; font-style: italic; }
+.landing-msg-meta { font-size: 10.5px; color: #a8987f; margin-top: 5px; }
+.landing-task { position: absolute; inset: 0; background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 11px 14px; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 20px -10px rgba(51, 40, 28, .3); animation: efB 6s ease-in-out infinite; }
+.landing-task-chip { width: 24px; height: 24px; flex: none; border-radius: 7px; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.landing-task-chip.is-green { background: var(--green); }
+.landing-task-chip.is-teal { background: var(--teal); font-size: 13px; }
+.landing-task-title { font-size: 13.5px; font-weight: 600; color: var(--ink); }
+.landing-task-meta { font-size: 11px; color: var(--muted); }
+
+@keyframes efA { 0%, 30% { opacity: 1; } 45%, 86% { opacity: 0; } 100% { opacity: 1; } }
+@keyframes efB { 0%, 30% { opacity: 0; } 45%, 86% { opacity: 1; } 100% { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-msg { animation: none; opacity: 0; }
+  .landing-task { animation: none; opacity: 1; }
+}
+
+/* Pillars band */
+.landing-pillars { background: var(--band); padding: 64px 6vw; }
+.landing-pillars-inner { max-width: 1280px; margin: 0 auto; }
+.landing-h2 { font-weight: 800; font-size: 34px; letter-spacing: -0.02em; text-align: center; margin-bottom: 34px; }
+.landing-pillar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.landing-pillar-card { background: #fff; border-radius: 14px; padding: 24px; box-shadow: 0 8px 20px -12px rgba(51, 40, 28, .3); }
+.landing-pillar-tile { width: 40px; height: 40px; border-radius: 11px; margin-bottom: 14px; }
+.landing-pillar-title { font-family: 'Schibsted Grotesk'; font-weight: 700; font-size: 18px; }
+.landing-pillar-body { font-size: 13.5px; line-height: 1.5; color: var(--text2); margin: 8px 0 0; }
+
+/* Final CTA */
+.landing-final-cta { background: var(--teal); color: #fff; padding: 76px 6vw; text-align: center; }
+.landing-final-cta .landing-h2 { font-size: 42px; color: #fff; margin-bottom: 0; }
+.landing-final-sub { font-size: 16px; color: var(--teal-pale); margin: 14px 0 26px; }
+.landing-final-cta .landing-btn { padding: 16px 32px; font-size: 16px; }
+
+/* Footer */
+.landing-footer { background: var(--footer-bg); color: var(--muted); padding: 26px 6vw; display: flex; align-items: center; justify-content: space-between; font-size: 13px; gap: 12px; flex-wrap: wrap; }
+.landing-footer-word { font-family: 'Schibsted Grotesk'; font-weight: 700; color: var(--bg); font-size: 15px; }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .landing-hero { grid-template-columns: 1fr; padding-top: 32px; }
+  .landing-visual { margin: 36px auto 0; max-width: 480px; }
+  .landing-h1 { font-size: 44px; }
+  .landing-nav-links { display: none; }
+  .landing-pillar-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 560px) {
+  .landing-pillar-grid { grid-template-columns: 1fr; }
+  .landing-h1 { font-size: 34px; }
+  .landing-final-cta .landing-h2 { font-size: 30px; }
+  .landing-footer { flex-direction: column; text-align: center; }
+}

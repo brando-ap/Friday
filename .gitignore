@@ -3,6 +3,7 @@ dist/
 *.log
 .env
 .DS_Store
+designs/
 
 # Cloudflare / Wrangler
 .wrangler/
