@@ -2,21 +2,13 @@
   "name": "task-tracker",
   "private": true,
   "version": "0.1.0",
-  "description": "Personal task/project tracker — Cloudflare Worker (Hono) + Supabase + React.",
+  "description": "Personal task/project tracker — one Cloudflare Worker (Hono API + Vite/React static assets) + Supabase.",
   "workspaces": [
-    "worker",
     "web"
   ],
   "scripts": {
-    "dev": "concurrently -k -n api,web -c magenta,green \"npm:dev:api\" \"npm:dev:web\"",
-    "dev:api": "npm --workspace worker run dev",
-    "dev:web": "npm --workspace web run dev",
+    "dev": "npm --workspace web run dev",
     "build": "npm --workspace web run build",
-    "check:api": "npm --workspace worker run build",
-    "deploy:api": "npm --workspace worker run deploy",
-    "deploy:web": "npm --workspace web run build"
-  },
-  "devDependencies": {
-    "concurrently": "^9.1.0"
+    "deploy": "npm --workspace web run deploy"
   }
 }

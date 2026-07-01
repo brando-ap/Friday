@@ -1,8 +1,7 @@
 import { getToken, clearToken } from './auth.js';
 
-// Dev: '/api' is proxied to the local Worker by Vite.
-// Prod: set VITE_API_BASE to the deployed Worker URL, e.g. https://friday-api.<you>.workers.dev/api
-const BASE = (import.meta.env.VITE_API_BASE || '/api').replace(/\/+$/, '');
+// Frontend and API are the same Worker (see ../wrangler.toml), so this is always same-origin.
+const BASE = '/api';
 
 // App.jsx registers a handler here so any 401 kicks the user back to the login screen.
 let onAuthError = () => {};

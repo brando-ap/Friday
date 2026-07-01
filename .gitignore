@@ -7,8 +7,6 @@ designs/
 
 # Cloudflare / Wrangler
 .wrangler/
-worker/dist/
 
 # Secrets — never commit
 .dev.vars
-worker/.dev.vars

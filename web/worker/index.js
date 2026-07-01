@@ -1,23 +1,9 @@
 import { Hono } from 'hono';
-import { cors } from 'hono/cors';
 import { sign, verify } from 'hono/jwt';
 import { getDb } from './supabase.js';
 import * as repo from './repo.js';
 
 const app = new Hono();
-
-// Only let the deployed frontend (custom domain + Pages preview deployments) call
-// the API from a browser. Non-browser clients (no Origin header) are unaffected.
-const ALLOWED_ORIGIN =
-  /^https:\/\/(ezyfriday\.com|www\.ezyfriday\.com|([a-z0-9-]+\.)?friday-1h7\.pages\.dev)$/;
-app.use(
-  '/api/*',
-  cors({
-    origin: (origin) => (origin && ALLOWED_ORIGIN.test(origin) ? origin : undefined),
-    allowHeaders: ['Content-Type', 'Authorization'],
-    allowMethods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
-  })
-);
 
 // ---------------------------------------------------------------------------
 // Auth: a single shared password gates everything except /health and /login.

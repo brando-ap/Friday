@@ -1,0 +1,13 @@
+name = "friday"
+main = "./worker/index.js"
+compatibility_date = "2026-07-01"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = "./dist"
+not_found_handling = "single-page-application"
+run_worker_first = ["/api/*"]
+
+# SUPABASE_URL, SUPABASE_SECRET_KEY, APP_PASSWORD, JWT_SECRET are NOT set here.
+#   Local:      put them in web/.dev.vars  (git-ignored)
+#   Production: `wrangler secret put <NAME>` for each

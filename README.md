@@ -11,27 +11,29 @@ It does three things on purpose, and nothing else (yet):
 
 ## Stack
 
-| Part     | Tech                                   | Hosts on          |
-|----------|----------------------------------------|-------------------|
-| Frontend | React + Vite (`web/`)                  | Cloudflare Pages  |
-| Backend  | Cloudflare Worker + Hono (`worker/`)   | Cloudflare Workers|
-| Database | Supabase (Postgres) via `supabase-js`  | Supabase          |
+One Cloudflare Worker (`web/`) serves both halves, via `@cloudflare/vite-plugin`:
+
+| Part     | Tech                                          |
+|----------|------------------------------------------------|
+| Frontend | React + Vite — static assets, incl. the `ezyFriday` marketing landing page |
+| Backend  | Hono API (`web/worker/`) — handles `/api/*`, same Worker, same origin |
+| Database | Supabase (Postgres) via `supabase-js`           |
 
 The Worker is the only thing that touches the database, using a Supabase
-**secret API key** (`sb_secret_…`, kept server-side). The browser only ever talks to the Worker.
+**secret API key** (`sb_secret_…`, kept server-side). Frontend and API share an origin, so there's no CORS to configure.
 
 ## One-time setup
 
 **1. Create the database (Supabase)**
 - Make a free project at <https://supabase.com>.
-- SQL Editor → New query → paste `worker/schema.sql` → Run.
+- SQL Editor → New query → paste `web/schema.sql` → Run.
 - Project Settings → **API** → copy the **Project URL**.
 - Project Settings → **API Keys** → **Secret keys** → create one → copy it (starts with `sb_secret_`).
 
 **2. Point the Worker at it + set a password (local)**
 ```bash
-cp worker/.dev.vars.example worker/.dev.vars
-# edit worker/.dev.vars and fill in:
+cp web/.dev.vars.example web/.dev.vars
+# edit web/.dev.vars and fill in:
 #   SUPABASE_URL, SUPABASE_SECRET_KEY   (from Supabase)
 #   APP_PASSWORD                        (what you type to log in)
 #   JWT_SECRET                          (signs your session token)
@@ -49,32 +51,27 @@ npm install
 ```bash
 npm run dev
 ```
-Starts the Worker (`wrangler dev`, :8787) and the web app (Vite, :5173) together.
-Open **http://localhost:5173** — Vite proxies `/api` to the Worker.
-
-## Verify the Worker bundles (no account needed)
-
-```bash
-npm run check:api   # wrangler dry-run build — proves it compiles for the Workers runtime
-```
+One Vite dev server on **http://localhost:5173** — the Cloudflare Vite plugin runs the Worker
+code (`/api/*`) in the real Workers runtime alongside the React app, so there's nothing to proxy.
 
 ## Deploy
 
-**Backend (Worker):**
 ```bash
-cd worker
+npm --workspace web run deploy    # vite build && wrangler deploy
+```
+Or, since the `friday` Cloudflare project is connected to GitHub (Workers Builds): push to `main`
+and it builds + deploys automatically. Dashboard build settings: root directory `web`, build
+command `npm run build`, deploy command `npx wrangler deploy` (default).
+
+Secrets (one-time, or whenever they change):
+```bash
+cd web
 npx wrangler login
 npx wrangler secret put SUPABASE_URL
 npx wrangler secret put SUPABASE_SECRET_KEY
 npx wrangler secret put APP_PASSWORD
 npx wrangler secret put JWT_SECRET
-npx wrangler deploy          # prints your https://friday-api.<you>.workers.dev URL
 ```
-
-**Frontend (Cloudflare Pages):**
-- Build command `npm run build`, output dir `web/dist`.
-- Set env var `VITE_API_BASE = https://friday-api.<you>.workers.dev/api`.
-- The Worker already sends permissive CORS, so the Pages origin can call it.
 
 ## Roadmap
 

@@ -6,7 +6,7 @@ import { createClient } from '@supabase/supabase-js';
 export function getDb(env) {
   if (!env.SUPABASE_URL || !env.SUPABASE_SECRET_KEY) {
     throw new Error(
-      'Missing SUPABASE_URL / SUPABASE_SECRET_KEY — set them in worker/.dev.vars (local) ' +
+      'Missing SUPABASE_URL / SUPABASE_SECRET_KEY — set them in web/.dev.vars (local) ' +
         'or via `wrangler secret put` (production).'
     );
   }
