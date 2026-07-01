@@ -73,13 +73,3 @@ npx wrangler secret put APP_PASSWORD
 npx wrangler secret put JWT_SECRET
 ```
 
-## Roadmap
-
-**Shipped (MVP)** — quick capture, date-sorted list with urgency colors, all core fields,
-status with a *Waiting* state, steps/sub-tasks, activity log, **password login** (shared
-password → 30-day signed JWT on every request).
-
-**Phase 2**
-- "Waiting > N days" follow-up flag pinned to the top of the morning view (the gentle poke).
-- Requester analytics — who sends you the most, so you can spot the systemic problems.
-- Warehouse SMS button on `location: warehouse` tasks — pre-fills a text to the main guy.
