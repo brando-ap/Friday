@@ -5,17 +5,15 @@ import * as repo from './repo.js';
 // Three tiers of /api/* route, checked in order:
 //   1. PUBLIC     — no token required at all.
 //   2. BOOTSTRAP  — a verified Supabase user is required, but NOT an existing
-//                   membership — these routes are how a membership first gets made.
+//                   membership — this is the ONLY way a membership first gets
+//                   made, i.e. signups are invite-only by construction.
 //   3. (default)  — a verified user AND an existing membership are required.
 const PUBLIC_ROUTES = [
   { method: 'GET', path: '/api/health' },
   { method: 'GET', path: /^\/api\/invites\/[^/]+$/ },
 ];
 
-const BOOTSTRAP_ROUTES = [
-  { method: 'POST', path: '/api/companies' },
-  { method: 'POST', path: /^\/api\/invites\/[^/]+\/accept$/ },
-];
+const BOOTSTRAP_ROUTES = [{ method: 'POST', path: /^\/api\/invites\/[^/]+\/accept$/ }];
 
 function matches(routes, method, path) {
   return routes.some((r) => {

@@ -51,7 +51,6 @@ export const api = {
   setSubtaskDone: (id, done) => req(`/subtasks/${id}`, { method: 'PATCH', body: JSON.stringify({ done }) }),
   deleteSubtask: (id) => req(`/subtasks/${id}`, { method: 'DELETE' }),
 
-  createCompany: (name) => req('/companies', { method: 'POST', body: JSON.stringify({ name }) }),
   getTeam: () => req('/team'),
   inviteMember: (email) => req('/team/invites', { method: 'POST', body: JSON.stringify({ email }) }),
   revokeInvite: (id) => req(`/team/invites/${id}`, { method: 'DELETE' }),

@@ -37,11 +37,7 @@ export default function LogIn() {
     <AuthLayout
       headline="Welcome back to the floor."
       subhead="Your board's been busy. Every request tracked, timed, and waiting where you left it."
-      crossLink={
-        <>
-          New here? <a href="/signup">Start free</a>
-        </>
-      }
+      crossLink="New here? Ask a teammate to invite you."
     >
       <form className="auth-form" onSubmit={submit}>
         <h1>Log in</h1>

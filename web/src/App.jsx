@@ -1,7 +1,6 @@
 import React from 'react';
 import { AuthProvider } from './auth/AuthContext.jsx';
 import Landing from './pages/Landing.jsx';
-import SignUp from './pages/SignUp.jsx';
 import LogIn from './pages/LogIn.jsx';
 import ForgotPassword from './pages/ForgotPassword.jsx';
 import ResetPassword from './pages/ResetPassword.jsx';
@@ -13,7 +12,6 @@ import TaskApp from './pages/TaskApp.jsx';
 // the provider — no reason to pay for a session check on every marketing/auth
 // page load.
 const ROUTES = [
-  ['/signup', SignUp],
   ['/login', LogIn],
   ['/forgot-password', ForgotPassword],
   ['/reset-password', ResetPassword],

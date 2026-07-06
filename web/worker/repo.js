@@ -188,27 +188,6 @@ async function hasMembership(db, userId, companyId) {
   return !!row;
 }
 
-// Idempotent — safe to retry if a prior attempt succeeded up to auth.signUp()
-// but failed before/during this call (see the sign-up flow in SignUp.jsx).
-export async function createCompany(db, userId, name) {
-  const existing = await findMembership(db, userId);
-  if (existing) {
-    const company = unwrap(
-      await db.from('companies').select('*').eq('id', existing.company_id).single()
-    );
-    return { company, membership: existing };
-  }
-  const company = unwrap(await db.from('companies').insert({ name: name.trim() }).select().single());
-  const membership = unwrap(
-    await db
-      .from('memberships')
-      .insert({ user_id: userId, company_id: company.id, role: 'owner' })
-      .select()
-      .single()
-  );
-  return { company, membership };
-}
-
 export async function getCompany(db, companyId) {
   return unwrap(await db.from('companies').select('*').eq('id', companyId).single());
 }

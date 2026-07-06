@@ -51,8 +51,7 @@ function Nav() {
         <span>Pricing</span>
       </div>
       <div className="landing-nav-right">
-        <a href="/login" className="landing-loginlink">Log in</a>
-        <a href="/signup" className="landing-btn landing-btn-teal landing-nav-cta">Start free</a>
+        <a href="/login" className="landing-btn landing-btn-teal landing-nav-cta">Log in</a>
       </div>
     </nav>
   );
@@ -98,7 +97,7 @@ function Hero() {
           in one place.
         </p>
         <div className="landing-hero-actions">
-          <a href="/signup" className="landing-btn landing-btn-coral">Start free — no card</a>
+          <a href="/login" className="landing-btn landing-btn-coral">Log in</a>
           <button type="button" className="landing-btn landing-btn-outline">Book a demo</button>
         </div>
       </div>
@@ -130,8 +129,8 @@ function FinalCta() {
   return (
     <section className="landing-final-cta">
       <h2 className="landing-h2">Clear the wall. Keep the calm.</h2>
-      <p className="landing-final-sub">Set your whole floor up in an afternoon. Free for two weeks.</p>
-      <a href="/signup" className="landing-btn landing-btn-white">Start free today</a>
+      <p className="landing-final-sub">Ask your team lead for an invite to get started.</p>
+      <a href="/login" className="landing-btn landing-btn-white">Log in</a>
     </section>
   );
 }

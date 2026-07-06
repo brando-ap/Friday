@@ -13,17 +13,6 @@ app.use('/api/*', authMiddleware);
 app.get('/api/health', (c) => c.json({ ok: true }));
 
 // ---------------------------------------------------------------------------
-// Companies (bootstrap — creates the caller's first membership)
-// ---------------------------------------------------------------------------
-app.post('/api/companies', async (c) => {
-  const body = await c.req.json().catch(() => ({}));
-  const name = (body.name || '').trim();
-  if (!name) return c.json({ error: 'company name is required' }, 400);
-  const { company } = await repo.createCompany(getDb(c.env), c.get('user').id, name);
-  return c.json({ company }, 201);
-});
-
-// ---------------------------------------------------------------------------
 // Invites
 // ---------------------------------------------------------------------------
 app.get('/api/invites/:token', async (c) => {
