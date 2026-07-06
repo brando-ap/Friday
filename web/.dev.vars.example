@@ -4,14 +4,26 @@
 #   SUPABASE_URL        = the "Project URL"  (Project Settings -> API)
 #   SUPABASE_SECRET_KEY = a "secret" API key starting with sb_secret_
 #                         (Project Settings -> API Keys -> Secret keys -> Create new)
-# The secret key has full access and bypasses Row Level Security, so it must stay
-# server-side only. This replaces the legacy "service_role" key.
+#                         Full access, bypasses Row Level Security — server-side only.
+#   SUPABASE_PUBLISHABLE_KEY = a "publishable" key starting with sb_publishable_
+#                         (Project Settings -> API Keys) — the new name for what
+#                         used to be called the "anon" key. Used server-side only
+#                         to verify a caller's access token (auth.getUser) —
+#                         never used for data access.
 SUPABASE_URL="https://your-project-ref.supabase.co"
 SUPABASE_SECRET_KEY="sb_secret_..."
+SUPABASE_PUBLISHABLE_KEY="sb_publishable_..."
 
-# --- Auth ---
-#   APP_PASSWORD = the password you'll type to log in
-#   JWT_SECRET   = a long random string used to sign session tokens. Generate one with:
-#                  node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
-APP_PASSWORD="choose-a-strong-password"
-JWT_SECRET="paste-a-long-random-string"
+# --- Resend (invite emails) ---
+#   RESEND_API_KEY = from the Resend dashboard, once you've verified a sending domain.
+RESEND_API_KEY="re_..."
+
+# --- Local overrides of wrangler.toml [vars] (optional) ---
+# PUBLIC_APP_URL="http://localhost:5173"
+
+# Project Settings → API Keys
+SUPABASE_PUBLISHABLE_KEY="sb_publishable_..."
+
+
+# from Resend dashboard
+RESEND_API_KEY="re_dzxrai7o_2YZn23gA3xE6aEhcS9MG7tXw"

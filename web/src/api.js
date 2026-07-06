@@ -1,16 +1,19 @@
-import { getToken, clearToken } from './auth.js';
+import { getSupabaseClient } from './auth/supabaseClient.js';
 
 // Frontend and API are the same Worker (see ../wrangler.toml), so this is always same-origin.
 const BASE = '/api';
 
-// App.jsx registers a handler here so any 401 kicks the user back to the login screen.
+// AuthContext registers a handler here so any 401 signs the user out everywhere.
 let onAuthError = () => {};
 export function setAuthErrorHandler(fn) {
   onAuthError = fn;
 }
 
 async function req(path, { skipAuthRedirect, headers, ...options } = {}) {
-  const token = getToken();
+  const {
+    data: { session },
+  } = await getSupabaseClient().auth.getSession();
+  const token = session?.access_token;
   const res = await fetch(BASE + path, {
     ...options,
     headers: {
@@ -21,7 +24,6 @@ async function req(path, { skipAuthRedirect, headers, ...options } = {}) {
   });
 
   if (res.status === 401 && !skipAuthRedirect) {
-    clearToken();
     onAuthError();
     throw new Error('Session expired — please sign in again');
   }
@@ -39,8 +41,6 @@ async function req(path, { skipAuthRedirect, headers, ...options } = {}) {
 }
 
 export const api = {
-  login: (password) =>
-    req('/login', { method: 'POST', body: JSON.stringify({ password }), skipAuthRedirect: true }),
   listTasks: () => req('/tasks'),
   getTask: (id) => req(`/tasks/${id}`),
   createTask: (data) => req('/tasks', { method: 'POST', body: JSON.stringify(data) }),
@@ -50,4 +50,11 @@ export const api = {
   addSubtask: (id, title) => req(`/tasks/${id}/subtasks`, { method: 'POST', body: JSON.stringify({ title }) }),
   setSubtaskDone: (id, done) => req(`/subtasks/${id}`, { method: 'PATCH', body: JSON.stringify({ done }) }),
   deleteSubtask: (id) => req(`/subtasks/${id}`, { method: 'DELETE' }),
+
+  createCompany: (name) => req('/companies', { method: 'POST', body: JSON.stringify({ name }) }),
+  getTeam: () => req('/team'),
+  inviteMember: (email) => req('/team/invites', { method: 'POST', body: JSON.stringify({ email }) }),
+  revokeInvite: (id) => req(`/team/invites/${id}`, { method: 'DELETE' }),
+  getInvite: (token) => req(`/invites/${token}`, { skipAuthRedirect: true }),
+  acceptInvite: (token) => req(`/invites/${token}/accept`, { method: 'POST' }),
 };

@@ -1,22 +1,22 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { api, setAuthErrorHandler } from '../api.js';
-import { getToken, clearToken } from '../auth.js';
-import Login from '../components/Login.jsx';
+import { api } from '../api.js';
+import { useAuth } from '../auth/AuthContext.jsx';
 import QuickAdd from '../components/QuickAdd.jsx';
 import TaskList from '../components/TaskList.jsx';
 import TaskDetail from '../components/TaskDetail.jsx';
+import Team from './Team.jsx';
 
 export default function TaskApp() {
-  const [authed, setAuthed] = useState(() => !!getToken());
+  const { session, loading, signOut } = useAuth();
   const [tasks, setTasks] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [showDone, setShowDone] = useState(false);
   const [error, setError] = useState(null);
 
-  // Any API call that returns 401 drops us back to the login screen.
+  // No session once loading settles -> bounce to the dedicated login page.
   useEffect(() => {
-    setAuthErrorHandler(() => setAuthed(false));
-  }, []);
+    if (!loading && !session) window.location.href = '/login';
+  }, [loading, session]);
 
   const refresh = useCallback(async () => {
     try {
@@ -28,8 +28,8 @@ export default function TaskApp() {
   }, []);
 
   useEffect(() => {
-    if (authed) refresh();
-  }, [authed, refresh]);
+    if (session) refresh();
+  }, [session, refresh]);
 
   const handleCreate = async (data) => {
     try {
@@ -41,16 +41,10 @@ export default function TaskApp() {
     }
   };
 
-  const logout = () => {
-    clearToken();
-    setAuthed(false);
-    setTasks([]);
-    setSelectedId(null);
-  };
+  if (loading || !session) return null; // brief flash while session resolves / redirect fires
 
-  if (!authed) {
-    return <Login onSuccess={() => setAuthed(true)} />;
-  }
+  const path = window.location.pathname.replace(/\/+$/, '');
+  if (path === '/app/team') return <Team />;
 
   const visible = showDone ? tasks : tasks.filter((t) => t.status !== 'done');
   const openCount = tasks.filter((t) => t.status !== 'done').length;
@@ -69,7 +63,8 @@ export default function TaskApp() {
             />
             Show done
           </label>
-          <button className="logout" onClick={logout}>Sign out</button>
+          <a className="team-link" href="/app/team">Team</a>
+          <button className="logout" onClick={signOut}>Sign out</button>
         </div>
       </header>
 

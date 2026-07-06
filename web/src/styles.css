@@ -216,6 +216,9 @@ body {
 .link { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 14px; padding: 2px 6px; }
 .link:hover { color: var(--overdue); }
 
+.team-link { color: var(--muted); text-decoration: none; font-size: 13px; }
+.team-link:hover { color: var(--accent); }
+
 .delete {
   margin-top: 20px;
   background: none;
@@ -240,48 +243,65 @@ body {
 }
 .logout:hover { border-color: var(--overdue); color: var(--overdue); }
 
-.login {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
+/* ---- Team ---- */
+.team {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px 20px 60px;
 }
-.login-card {
+.team-back { display: inline-block; margin-bottom: 14px; padding: 0; }
+.team h1 { font-size: 22px; margin: 0 0 18px; }
+.team-section {
   background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 10px;
+  padding: 16px;
   box-shadow: var(--shadow);
-  padding: 28px;
-  width: 320px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  margin-bottom: 16px;
 }
-.login-card h1 { margin: 0; font-size: 24px; }
-.login-card p { margin: 0; color: var(--muted); font-size: 14px; }
-.login-card input {
+.team-section h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin: 0 0 10px; }
+.team-notice {
+  background: #f0f9f4;
+  border: 1px solid #bbf0c9;
+  color: var(--done);
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+.team-empty { color: var(--muted); font-size: 14px; margin: 0; }
+.team-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.team-list li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+.team-list li:last-child { border-bottom: none; padding-bottom: 0; }
+.team-name { font-weight: 600; }
+.team-email { font-size: 13px; color: var(--muted); }
+.team-role {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 2px 10px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.team-role.role-owner { color: var(--accent); border-color: #c7d7fe; background: #f3f7ff; }
+.team-invite-form { display: flex; gap: 8px; }
+.team-invite-form input {
+  flex: 1;
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 10px 12px;
-  font-size: 15px;
+  padding: 9px 11px;
+  font-size: 14px;
 }
-.login-card button {
+.team-invite-form button {
   background: var(--accent);
   color: #fff;
   border: none;
   border-radius: 8px;
-  padding: 10px;
-  font-size: 15px;
+  padding: 0 16px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
 }
-.login-card button:disabled { opacity: 0.5; cursor: default; }
-.login-error {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: var(--overdue);
-  padding: 8px 10px;
-  border-radius: 8px;
-  font-size: 13px;
-}
+.team-invite-form button:disabled { opacity: 0.6; cursor: default; }

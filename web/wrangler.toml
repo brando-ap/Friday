@@ -8,6 +8,12 @@ directory = "./dist"
 not_found_handling = "single-page-application"
 run_worker_first = ["/api/*"]
 
-# SUPABASE_URL, SUPABASE_SECRET_KEY, APP_PASSWORD, JWT_SECRET are NOT set here.
+[vars]
+# Used to build links in emails (invite accept links). Not secret.
+PUBLIC_APP_URL = "https://ezyfriday.com"
+# Must be on a domain you've verified with Resend, or invite emails will fail to send.
+RESEND_FROM_EMAIL = "ezyFriday <invites@ezyfriday.com>"
+
+# SUPABASE_URL, SUPABASE_SECRET_KEY, SUPABASE_PUBLISHABLE_KEY, RESEND_API_KEY are NOT set here.
 #   Local:      put them in web/.dev.vars  (git-ignored)
 #   Production: `wrangler secret put <NAME>` for each

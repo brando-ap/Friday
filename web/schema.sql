@@ -1,8 +1,42 @@
--- Friday — Supabase schema.
+-- ezyFriday — Supabase schema.
 -- Run this once in your Supabase project: SQL Editor -> New query -> paste -> Run.
+-- (If you're migrating an existing live project instead of starting fresh, use the
+-- staged files in web/migrations/ — this file is the fresh-install end state.)
+
+create table if not exists companies (
+  id         bigint generated always as identity primary key,
+  name       text not null,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists memberships (
+  user_id    uuid not null references auth.users(id) on delete cascade,
+  company_id bigint not null references companies(id) on delete cascade,
+  role       text not null default 'member' check (role in ('owner', 'member')),
+  created_at timestamptz not null default now(),
+  primary key (user_id, company_id)
+);
+
+create table if not exists invites (
+  id          bigint generated always as identity primary key,
+  company_id  bigint not null references companies(id) on delete cascade,
+  email       text not null,
+  token       text not null unique,
+  invited_by  uuid not null references auth.users(id),
+  role        text not null default 'member' check (role in ('owner', 'member')),
+  created_at  timestamptz not null default now(),
+  expires_at  timestamptz not null,
+  accepted_at timestamptz
+);
+
+-- Only one *pending* invite per (company, email) at a time — re-inviting is handled
+-- in code by deleting the old pending invite first, not by allowing duplicates here.
+create unique index if not exists uniq_pending_invite
+  on invites(company_id, email) where accepted_at is null;
 
 create table if not exists tasks (
   id            bigint generated always as identity primary key,
+  company_id    bigint not null references companies(id),
   title         text not null,
   description   text,
   requester     text,
@@ -32,12 +66,17 @@ create table if not exists activity_log (
   created_at timestamptz not null default now()
 );
 
+create index if not exists idx_tasks_company on tasks(company_id);
 create index if not exists idx_subtasks_task on subtasks(task_id);
 create index if not exists idx_activity_task on activity_log(task_id);
 
 -- The Worker talks to these tables with a Supabase secret key (sb_secret_...),
 -- which bypasses Row Level Security. We still enable RLS with no policies so the
--- publishable key cannot touch the data directly — only the server-side Worker can.
-alter table tasks        enable row level security;
-alter table subtasks     enable row level security;
-alter table activity_log enable row level security;
+-- publishable/anon key (the only key the browser ever holds, used solely for Auth)
+-- cannot touch any table's data directly — only the server-side Worker can.
+alter table companies     enable row level security;
+alter table memberships   enable row level security;
+alter table invites       enable row level security;
+alter table tasks         enable row level security;
+alter table subtasks      enable row level security;
+alter table activity_log  enable row level security;
