@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../api.js';
+import AppShell from '../components/AppShell.jsx';
+
+const SHELL_PROPS = {
+  active: 'companies',
+  title: 'Companies',
+  subtitle: 'The customers work comes in from, and their requesters.',
+};
 
 // "Companies" here are client companies (the `clients` table) — the outside
 // customers work comes in from — NOT the tenant workspace. Requesters are the
@@ -92,17 +99,15 @@ export default function Companies() {
 
   if (!clients) {
     return (
-      <div className="team">
-        <a className="link team-back" href="/app">← Back to board</a>
-        {error && <div className="error">{error}</div>}
-      </div>
+      <AppShell {...SHELL_PROPS}>
+        <div className="team">{error && <div className="error">{error}</div>}</div>
+      </AppShell>
     );
   }
 
   return (
+    <AppShell {...SHELL_PROPS}>
     <div className="team companies-page">
-      <a className="link team-back" href="/app">← Back to board</a>
-      <h1>Companies</h1>
       {error && <div className="error">{error}</div>}
 
       {clients.map((c) => {
@@ -245,5 +250,6 @@ export default function Companies() {
         </section>
       )}
     </div>
+    </AppShell>
   );
 }

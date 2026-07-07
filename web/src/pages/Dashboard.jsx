@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../api.js';
+import AppShell from '../components/AppShell.jsx';
+
+const SHELL_PROPS = {
+  active: 'dashboard',
+  title: 'Dashboard',
+  subtitle: 'How the board is moving.',
+};
 
 function BreakdownTable({ title, rows, emptyText }) {
   return (
@@ -41,10 +48,11 @@ export default function Dashboard() {
 
   if (!data) {
     return (
-      <div className="team dash-page">
-        <a className="link team-back" href="/app">← Back to board</a>
-        {error ? <div className="error">{error}</div> : <p className="team-empty">Loading…</p>}
-      </div>
+      <AppShell {...SHELL_PROPS}>
+        <div className="team dash-page">
+          {error ? <div className="error">{error}</div> : <p className="team-empty">Loading…</p>}
+        </div>
+      </AppShell>
     );
   }
 
@@ -56,9 +64,8 @@ export default function Dashboard() {
   ];
 
   return (
+    <AppShell {...SHELL_PROPS}>
     <div className="team dash-page">
-      <a className="link team-back" href="/app">← Back to board</a>
-      <h1>Dashboard</h1>
       {error && <div className="error">{error}</div>}
 
       <div className="stat-grid">
@@ -81,5 +88,6 @@ export default function Dashboard() {
         emptyText="No tasks have a requester yet."
       />
     </div>
+    </AppShell>
   );
 }

@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../api.js';
+import AppShell from '../components/AppShell.jsx';
+
+const SHELL_PROPS = {
+  active: 'team',
+  title: 'Team',
+  subtitle: 'Members, invites, and your public request form.',
+};
 
 // No mockup — plain app styling (styles.css), not the marketing auth design system.
 export default function Team() {
@@ -60,19 +67,17 @@ export default function Team() {
 
   if (!data) {
     return (
-      <div className="team">
-        <a className="team-link team-back" href="/app">← Back to board</a>
-        {error && <div className="error">{error}</div>}
-      </div>
+      <AppShell {...SHELL_PROPS}>
+        <div className="team">{error && <div className="error">{error}</div>}</div>
+      </AppShell>
     );
   }
 
   const isOwner = data.role === 'owner';
 
   return (
+    <AppShell {...SHELL_PROPS}>
     <div className="team">
-      <a className="link team-back" href="/app">← Back to board</a>
-      <h1>Team</h1>
       {error && <div className="error">{error}</div>}
       {notice && <div className="team-notice">{notice}</div>}
 
@@ -214,5 +219,6 @@ export default function Team() {
         </section>
       )}
     </div>
+    </AppShell>
   );
 }

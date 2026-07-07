@@ -3,6 +3,7 @@ import { api } from '../api.js';
 import { useAuth } from '../auth/AuthContext.jsx';
 import { urgency, todayISO } from '../dates.js';
 import { toCSV } from '../csv.js';
+import AppShell from '../components/AppShell.jsx';
 import QuickAdd from '../components/QuickAdd.jsx';
 import TaskList from '../components/TaskList.jsx';
 import TaskDetail from '../components/TaskDetail.jsx';
@@ -60,7 +61,7 @@ function ShortcutHelp({ onClose }) {
 }
 
 export default function TaskApp() {
-  const { session, loading, signOut } = useAuth();
+  const { session, loading } = useAuth();
   const [tasks, setTasks] = useState([]);
   const [clients, setClients] = useState([]);
   const [requesters, setRequesters] = useState([]);
@@ -245,16 +246,12 @@ export default function TaskApp() {
   const openCount = tasks.filter((t) => t.status !== 'done').length;
 
   return (
-    <div className="app">
-      <header className="topbar">
-        <h1>Friday</h1>
-        <nav className="topnav">
-          <a href="/app/calendar">Calendar</a>
-          <a href="/app/dashboard">Dashboard</a>
-          <a href="/app/companies">Companies</a>
-          <a href="/app/team">Team</a>
-        </nav>
-        <div className="topbar-right">
+    <AppShell
+      active="board"
+      title="Board"
+      subtitle="The date-sorted morning view."
+      actions={
+        <>
           <span className="count-pill">{openCount} open</span>
           <label className="show-done">
             <input
@@ -271,10 +268,10 @@ export default function TaskApp() {
           >
             ?
           </button>
-          <button className="logout" onClick={signOut}>Sign out</button>
-        </div>
-      </header>
-
+        </>
+      }
+    >
+      <div className="app">
       {error && <div className="error">{error}</div>}
 
       <QuickAdd
@@ -311,6 +308,7 @@ export default function TaskApp() {
       {showImport && (
         <ImportDialog onClose={() => setShowImport(false)} onImported={refresh} />
       )}
-    </div>
+      </div>
+    </AppShell>
   );
 }
