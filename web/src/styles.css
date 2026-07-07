@@ -316,6 +316,33 @@ body {
 }
 .team-invite-form button:disabled { opacity: 0.6; cursor: default; }
 
+/* ---- Public request form controls (Team page) ---- */
+.team-intake-hint { color: var(--muted); font-size: 14px; margin: 0 0 10px; }
+.team-intake-link { display: flex; gap: 8px; align-items: center; }
+.team-intake-link code {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 11px;
+  font-size: 12.5px;
+}
+.team-intake-link button,
+.team-intake-enable {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.team-intake-actions { display: flex; gap: 12px; margin-top: 8px; }
+
 /* ---- Top nav (board -> other pages) ---- */
 .topnav { display: flex; gap: 14px; }
 .topnav a { color: var(--muted); text-decoration: none; font-size: 13px; }

@@ -435,6 +435,70 @@ export async function deleteRequester(db, companyId, id) {
 }
 
 // ---------------------------------------------------------------------------
+// Public request intake — a tokenized form URL per workspace lets outside
+// requesters submit work without an account. The URL token is the only
+// credential, so it's a UUID, only honored while enabled, and rotatable.
+// ---------------------------------------------------------------------------
+export async function getIntakeSettings(db, companyId) {
+  const row = unwrap(
+    await db.from('companies').select('intake_token, intake_enabled').eq('id', companyId).single()
+  );
+  return { enabled: row.intake_enabled, token: row.intake_token };
+}
+
+export async function updateIntakeSettings(db, companyId, { enabled, rotate }) {
+  const current = unwrap(
+    await db.from('companies').select('intake_token').eq('id', companyId).single()
+  );
+  const patch = {};
+  if (typeof enabled === 'boolean') patch.intake_enabled = enabled;
+  // First enable mints the token; rotate invalidates any previously shared link.
+  if (rotate || (enabled === true && !current.intake_token)) patch.intake_token = crypto.randomUUID();
+  if (Object.keys(patch).length > 0) {
+    unwrap(await db.from('companies').update(patch).eq('id', companyId));
+  }
+  return getIntakeSettings(db, companyId);
+}
+
+export async function getCompanyByIntakeToken(db, token) {
+  return unwrap(
+    await db
+      .from('companies')
+      .select('id, name')
+      .eq('intake_token', token)
+      .eq('intake_enabled', true)
+      .maybeSingle()
+  );
+}
+
+// Repeat submitters keep one identity: match this tenant's requesters by email
+// (case-insensitive, in JS — the dataset is tiny), else create a new requester.
+async function findOrCreateRequester(db, companyId, name, email) {
+  const rows = unwrap(
+    await db.from('requesters').select('id, email').eq('company_id', companyId).not('email', 'is', null)
+  );
+  const match = rows.find((r) => r.email.toLowerCase() === email.toLowerCase());
+  if (match) return match.id;
+  const inserted = unwrap(
+    await db.from('requesters').insert({ company_id: companyId, name, email }).select('id').single()
+  );
+  return inserted.id;
+}
+
+export async function createIntakeTask(db, company, data) {
+  const requesterId = await findOrCreateRequester(db, company.id, data.name, data.email);
+  const task = await createTask(db, company.id, {
+    title: data.title,
+    description: data.description,
+    location: data.location,
+    due_date: data.due_date,
+    requester_id: requesterId,
+  });
+  await logSystem(db, task.id, `Created from the public request form by ${data.name} (${data.email})`);
+  return task;
+}
+
+// ---------------------------------------------------------------------------
 // Dashboard aggregates — computed in JS like compareTasks (dataset is tiny).
 // ---------------------------------------------------------------------------
 export async function getDashboard(db, companyId) {

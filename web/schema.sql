@@ -4,9 +4,13 @@
 -- staged files in web/migrations/ — this file is the fresh-install end state.)
 
 create table if not exists companies (
-  id         bigint generated always as identity primary key,
-  name       text not null,
-  created_at timestamptz not null default now()
+  id             bigint generated always as identity primary key,
+  name           text not null,
+  -- Public request-intake form: the token in the shareable /request URL.
+  -- Null until an owner first enables the form; rotatable.
+  intake_token   text unique,
+  intake_enabled boolean not null default false,
+  created_at     timestamptz not null default now()
 );
 
 create table if not exists memberships (

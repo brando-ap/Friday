@@ -5,6 +5,7 @@ import LogIn from './pages/LogIn.jsx';
 import ForgotPassword from './pages/ForgotPassword.jsx';
 import ResetPassword from './pages/ResetPassword.jsx';
 import AcceptInvite from './pages/AcceptInvite.jsx';
+import RequestForm from './pages/RequestForm.jsx';
 import TaskApp from './pages/TaskApp.jsx';
 
 // Only TaskApp reads useAuth() (it needs reactive session state to gate the
@@ -16,6 +17,7 @@ const ROUTES = [
   ['/forgot-password', ForgotPassword],
   ['/reset-password', ResetPassword],
   ['/accept-invite', AcceptInvite],
+  ['/request', RequestForm],
 ];
 
 export default function App() {

@@ -95,6 +95,7 @@
 .auth-field-static { font-size: 14.5px; color: var(--text2); background: #fff; border: 1.5px solid var(--input-border); border-radius: 11px; padding: 12px 13px; }
 
 .auth-field input,
+.auth-field textarea,
 .auth-form select {
   font: inherit;
   font-size: 14.5px;
@@ -104,8 +105,13 @@
   border-radius: 11px;
   padding: 12px 13px;
 }
-.auth-field input::placeholder { color: var(--placeholder); }
-.auth-field input:focus, .auth-form select:focus { outline: none; border-color: var(--brand); }
+.auth-field textarea { resize: vertical; }
+.auth-field input::placeholder, .auth-field textarea::placeholder { color: var(--placeholder); }
+.auth-field input:focus, .auth-field textarea:focus, .auth-form select:focus { outline: none; border-color: var(--brand); }
+
+/* Honeypot field on the public request form — off-screen, not display:none,
+   so naive bots still "see" and fill it. */
+.intake-website { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 
 .auth-password-wrap { position: relative; display: flex; align-items: center; }
 .auth-password-wrap input { flex: 1; padding-right: 56px; }

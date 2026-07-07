@@ -11,6 +11,9 @@ import * as repo from './repo.js';
 const PUBLIC_ROUTES = [
   { method: 'GET', path: '/api/health' },
   { method: 'GET', path: /^\/api\/invites\/[^/]+$/ },
+  // Public request-intake form — the URL token is the credential.
+  { method: 'GET', path: /^\/api\/intake\/[^/]+$/ },
+  { method: 'POST', path: /^\/api\/intake\/[^/]+$/ },
 ];
 
 const BOOTSTRAP_ROUTES = [{ method: 'POST', path: /^\/api\/invites\/[^/]+\/accept$/ }];

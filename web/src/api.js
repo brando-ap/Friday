@@ -65,6 +65,15 @@ export const api = {
 
   getDashboard: () => req('/dashboard'),
 
+  // Public request-intake form. The two token calls are made from the public
+  // /request page where there's usually no session — skipAuthRedirect so a
+  // stale session can't bounce an outside requester to the login page.
+  getIntakeInfo: (token) => req(`/intake/${token}`, { skipAuthRedirect: true }),
+  submitIntakeRequest: (token, data) =>
+    req(`/intake/${token}`, { method: 'POST', body: JSON.stringify(data), skipAuthRedirect: true }),
+  getIntakeSettings: () => req('/intake-settings'),
+  updateIntakeSettings: (data) => req('/intake-settings', { method: 'PATCH', body: JSON.stringify(data) }),
+
   getTeam: () => req('/team'),
   inviteMember: (email) => req('/team/invites', { method: 'POST', body: JSON.stringify({ email }) }),
   revokeInvite: (id) => req(`/team/invites/${id}`, { method: 'DELETE' }),

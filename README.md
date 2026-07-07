@@ -10,6 +10,10 @@ It does four things on purpose, and nothing else (yet):
    timestamped **activity log** so a project you dropped a week ago is instantly re-readable.
 4. **A shared board** — sign up as a company, invite your team by email, everyone sees the
    same board.
+5. **A public request form** — a shareable `/request?token=…` link (turn it on from the
+   Team page) where customers submit work without an account. Each submission lands on
+   the board attributed to a requester (matched by email, or created), and workspace
+   owners get an email immediately.
 
 ## Stack
 
@@ -112,6 +116,8 @@ instead, in order:
    your old tasks aren't linked to a company yet.
 3. `002_backfill_tasks_company.sql` — links your existing tasks to your new company.
 4. After a day or two of normal use with no issues: `003_tighten_tasks_company_not_null.sql`.
+5. `005_intake.sql` — additive only (public request-form columns on `companies`); required
+   before deploying the request-form feature.
 
 ## Roadmap
 

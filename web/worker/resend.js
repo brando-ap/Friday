@@ -45,6 +45,29 @@ export async function sendInviteEmail(env, { to, companyName, inviterEmail, acce
 const escapeHtml = (s) =>
   String(s).replace(/[&<>"']/g, (ch) => `&#${ch.charCodeAt(0)};`);
 
+// New public-form request → ping the workspace owners immediately (the daily
+// digest is too slow for inbound work).
+export async function sendIntakeNotificationEmail(
+  env,
+  { to, companyName, task, requesterName, requesterEmail, appUrl }
+) {
+  await sendEmail(env, {
+    to,
+    subject: `New request: ${task.title} (${companyName})`,
+    html: `
+      <div style="font-family:sans-serif;max-width:480px;margin:0 auto">
+        <h2 style="color:#33281c;margin:0 0 12px">New request on the ${escapeHtml(companyName)} board</h2>
+        <p style="color:#333;margin:0 0 4px"><strong>${escapeHtml(task.title)}</strong></p>
+        <p style="color:#6b5a45;margin:0 0 4px">From ${escapeHtml(requesterName)} (${escapeHtml(requesterEmail)})</p>
+        ${task.due_date ? `<p style="color:#6b5a45;margin:0">Needed by ${escapeHtml(task.due_date)}</p>` : ''}
+        <p style="margin:24px 0">
+          <a href="${appUrl}/app?task=${task.id}" style="display:inline-block;background:#ef6b4d;color:#fff;font-weight:700;padding:12px 24px;border-radius:999px;text-decoration:none">Open the request</a>
+        </p>
+      </div>
+    `,
+  });
+}
+
 // Morning digest of everything due today or overdue, sent to workspace owners.
 export async function sendDigestEmail(env, { to, companyName, tasks, today, appUrl }) {
   const overdue = tasks.filter((t) => t.due_date < today);

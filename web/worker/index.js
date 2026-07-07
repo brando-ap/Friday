@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { getDb } from './supabase.js';
 import { authMiddleware } from './auth.js';
-import { sendInviteEmail, sendDigestEmail } from './resend.js';
+import { sendInviteEmail, sendDigestEmail, sendIntakeNotificationEmail } from './resend.js';
 import * as repo from './repo.js';
 
 const app = new Hono();
@@ -30,6 +30,83 @@ app.post('/api/invites/:token/accept', async (c) => {
     return c.json({ error: 'this invite was sent to a different email address' }, 403);
   }
   return c.json({ company: result.company });
+});
+
+// ---------------------------------------------------------------------------
+// Public request intake — no auth; the URL token is the credential (see the
+// PUBLIC_ROUTES entries in auth.js and the intake section in repo.js).
+// ---------------------------------------------------------------------------
+const INTAKE_LIMITS = { name: 120, email: 254, title: 200, description: 5000, location: 200 };
+const INTAKE_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+app.get('/api/intake/:token', async (c) => {
+  const company = await repo.getCompanyByIntakeToken(getDb(c.env), c.req.param('token'));
+  return company ? c.json({ company_name: company.name }) : c.json({ error: 'not found' }, 404);
+});
+
+app.post('/api/intake/:token', async (c) => {
+  const db = getDb(c.env);
+  const company = await repo.getCompanyByIntakeToken(db, c.req.param('token'));
+  if (!company) return c.json({ error: 'not found' }, 404);
+
+  const body = await c.req.json().catch(() => ({}));
+  // Honeypot: humans never see the "website" field. Pretend success to bots.
+  if ((body.website || '').trim()) return c.json({ ok: true }, 201);
+
+  const fields = {};
+  for (const [field, max] of Object.entries(INTAKE_LIMITS)) {
+    const value = typeof body[field] === 'string' ? body[field].trim() : '';
+    if (value.length > max) return c.json({ error: `${field} is too long (max ${max} characters)` }, 400);
+    fields[field] = value || null;
+  }
+  if (!fields.name) return c.json({ error: 'your name is required' }, 400);
+  if (!EMAIL_RE.test(fields.email || '')) return c.json({ error: 'a valid email is required' }, 400);
+  if (!fields.title) return c.json({ error: 'a short description of what you need is required' }, 400);
+  if (body.due_date && !INTAKE_DATE_RE.test(body.due_date)) {
+    return c.json({ error: 'needed-by date must be YYYY-MM-DD' }, 400);
+  }
+
+  const task = await repo.createIntakeTask(db, company, { ...fields, due_date: body.due_date || null });
+
+  // Owners hear about new requests right away (the daily digest is too slow
+  // for inbound work); a notification failure must not fail the submit.
+  c.executionCtx.waitUntil(
+    (async () => {
+      try {
+        for (const to of await repo.listOwnerEmails(db, company.id)) {
+          await sendIntakeNotificationEmail(c.env, {
+            to,
+            companyName: company.name,
+            task,
+            requesterName: fields.name,
+            requesterEmail: fields.email,
+            appUrl: c.env.PUBLIC_APP_URL,
+          });
+        }
+      } catch (err) {
+        console.error('intake notification failed:', err);
+      }
+    })()
+  );
+
+  return c.json({ ok: true }, 201);
+});
+
+// ---------------------------------------------------------------------------
+// Intake settings (member tier reads; enabling/rotating is owner-only)
+// ---------------------------------------------------------------------------
+app.get('/api/intake-settings', async (c) => {
+  return c.json(await repo.getIntakeSettings(getDb(c.env), c.get('companyId')));
+});
+
+app.patch('/api/intake-settings', async (c) => {
+  if (c.get('role') !== 'owner') return c.json({ error: 'forbidden' }, 403);
+  const body = await c.req.json().catch(() => ({}));
+  const settings = await repo.updateIntakeSettings(getDb(c.env), c.get('companyId'), {
+    enabled: typeof body.enabled === 'boolean' ? body.enabled : undefined,
+    rotate: !!body.rotate,
+  });
+  return c.json(settings);
 });
 
 // ---------------------------------------------------------------------------

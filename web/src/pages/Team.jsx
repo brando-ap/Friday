@@ -8,10 +8,14 @@ export default function Team() {
   const [email, setEmail] = useState('');
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState(null);
+  const [intake, setIntake] = useState(null);
+  const [copied, setCopied] = useState(false);
 
   const refresh = async () => {
     try {
-      setData(await api.getTeam());
+      const [team, intakeSettings] = await Promise.all([api.getTeam(), api.getIntakeSettings()]);
+      setData(team);
+      setIntake(intakeSettings);
       setError(null);
     } catch (e) {
       setError(e.message);
@@ -110,6 +114,85 @@ export default function Team() {
               </li>
             ))}
           </ul>
+        )}
+      </section>
+
+      <section className="team-section">
+        <h3>Public request form</h3>
+        {intake?.enabled ? (
+          <>
+            <p className="team-intake-hint">
+              Anyone with this link can send your team a request — no account needed. Share it with
+              your customers; each submission lands on the board with the requester attached.
+            </p>
+            <div className="team-intake-link">
+              <code>{`${window.location.origin}/request?token=${intake.token}`}</code>
+              <button
+                type="button"
+                onClick={async () => {
+                  await navigator.clipboard.writeText(
+                    `${window.location.origin}/request?token=${intake.token}`
+                  );
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                }}
+              >
+                {copied ? 'Copied ✓' : 'Copy link'}
+              </button>
+            </div>
+            {isOwner && (
+              <div className="team-intake-actions">
+                <button
+                  className="link"
+                  onClick={async () => {
+                    if (!window.confirm('Reset the link? The old link stops working immediately.')) return;
+                    try {
+                      setIntake(await api.updateIntakeSettings({ rotate: true }));
+                    } catch (e) {
+                      setError(e.message);
+                    }
+                  }}
+                >
+                  Reset link
+                </button>
+                <button
+                  className="link"
+                  onClick={async () => {
+                    try {
+                      setIntake(await api.updateIntakeSettings({ enabled: false }));
+                    } catch (e) {
+                      setError(e.message);
+                    }
+                  }}
+                >
+                  Turn off
+                </button>
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            <p className="team-intake-hint">
+              Give customers a link where they can submit requests straight onto your board — no
+              account needed.
+            </p>
+            {isOwner ? (
+              <button
+                className="team-intake-enable"
+                onClick={async () => {
+                  try {
+                    setIntake(await api.updateIntakeSettings({ enabled: true }));
+                  } catch (e) {
+                    setError(e.message);
+                  }
+                }}
+              >
+                Turn on the request form
+              </button>
+            ) : (
+              <p className="team-empty">Ask an owner to turn it on.</p>
+            )}
+          </>
         )}
       </section>
 
