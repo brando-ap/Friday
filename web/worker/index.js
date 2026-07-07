@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { getDb } from './supabase.js';
 import { authMiddleware } from './auth.js';
-import { sendInviteEmail } from './resend.js';
+import { sendInviteEmail, sendDigestEmail } from './resend.js';
 import * as repo from './repo.js';
 
 const app = new Hono();
@@ -79,10 +79,72 @@ app.delete('/api/team/invites/:id', async (c) => {
 });
 
 // ---------------------------------------------------------------------------
+// Clients ("Companies" in the UI) & requesters — all scoped to the caller's
+// company. Note: these are customer records, NOT the tenant workspace.
+// ---------------------------------------------------------------------------
+app.get('/api/clients', async (c) => {
+  return c.json(await repo.listClients(getDb(c.env), c.get('companyId')));
+});
+
+app.post('/api/clients', async (c) => {
+  const body = await c.req.json().catch(() => ({}));
+  if (!(body.name || '').trim()) return c.json({ error: 'name is required' }, 400);
+  return c.json(await repo.createClient(getDb(c.env), c.get('companyId'), body), 201);
+});
+
+app.patch('/api/clients/:id', async (c) => {
+  const body = await c.req.json().catch(() => ({}));
+  const client = await repo.updateClient(getDb(c.env), c.get('companyId'), Number(c.req.param('id')), body);
+  return client ? c.json(client) : c.json({ error: 'not found' }, 404);
+});
+
+app.delete('/api/clients/:id', async (c) => {
+  const ok = await repo.deleteClient(getDb(c.env), c.get('companyId'), Number(c.req.param('id')));
+  return ok ? c.body(null, 204) : c.json({ error: 'not found' }, 404);
+});
+
+app.get('/api/requesters', async (c) => {
+  return c.json(await repo.listRequesters(getDb(c.env), c.get('companyId')));
+});
+
+app.post('/api/requesters', async (c) => {
+  const body = await c.req.json().catch(() => ({}));
+  if (!(body.name || '').trim()) return c.json({ error: 'name is required' }, 400);
+  return c.json(await repo.createRequester(getDb(c.env), c.get('companyId'), body), 201);
+});
+
+app.patch('/api/requesters/:id', async (c) => {
+  const body = await c.req.json().catch(() => ({}));
+  const requester = await repo.updateRequester(getDb(c.env), c.get('companyId'), Number(c.req.param('id')), body);
+  return requester ? c.json(requester) : c.json({ error: 'not found' }, 404);
+});
+
+app.delete('/api/requesters/:id', async (c) => {
+  const ok = await repo.deleteRequester(getDb(c.env), c.get('companyId'), Number(c.req.param('id')));
+  return ok ? c.body(null, 204) : c.json({ error: 'not found' }, 404);
+});
+
+// ---------------------------------------------------------------------------
+// Dashboard aggregates
+// ---------------------------------------------------------------------------
+app.get('/api/dashboard', async (c) => {
+  return c.json(await repo.getDashboard(getDb(c.env), c.get('companyId')));
+});
+
+// ---------------------------------------------------------------------------
 // Tasks (all scoped to the caller's company)
 // ---------------------------------------------------------------------------
 app.get('/api/tasks', async (c) => {
   return c.json(await repo.listTasks(getDb(c.env), c.get('companyId')));
+});
+
+// Bulk CSV import — rows are parsed client-side, validated per row here.
+app.post('/api/tasks/import', async (c) => {
+  const body = await c.req.json().catch(() => ({}));
+  const rows = Array.isArray(body.rows) ? body.rows : [];
+  if (rows.length === 0) return c.json({ error: 'no rows to import' }, 400);
+  if (rows.length > 500) return c.json({ error: 'too many rows (max 500 per import)' }, 400);
+  return c.json(await repo.importTasks(getDb(c.env), c.get('companyId'), rows), 201);
 });
 
 app.post('/api/tasks', async (c) => {
@@ -134,7 +196,41 @@ app.delete('/api/subtasks/:id', async (c) => {
 
 app.onError((err, c) => {
   console.error(err);
-  return c.json({ error: err.message || 'internal error' }, 500);
+  // repo throws validation errors with err.status = 400 (see badRequest).
+  return c.json({ error: err.message || 'internal error' }, err.status || 500);
 });
 
-export default app;
+// ---------------------------------------------------------------------------
+// Daily digest — runs on the cron trigger in wrangler.toml. Emails every
+// workspace owner their company's tasks due today or overdue. The only place
+// we iterate across tenants; each company's email only ever contains that
+// company's tasks.
+// ---------------------------------------------------------------------------
+async function runDailyDigest(env) {
+  const db = getDb(env);
+  const today = new Date().toISOString().slice(0, 10);
+  for (const company of await repo.listAllCompanies(db)) {
+    try {
+      const tasks = await repo.listDueOrOverdueTasks(db, company.id, today);
+      if (tasks.length === 0) continue;
+      const owners = await repo.listOwnerEmails(db, company.id);
+      for (const to of owners) {
+        await sendDigestEmail(env, {
+          to,
+          companyName: company.name,
+          tasks,
+          today,
+          appUrl: env.PUBLIC_APP_URL,
+        });
+      }
+    } catch (err) {
+      // One company's failure (e.g. a bad email) shouldn't skip the rest.
+      console.error(`daily digest failed for company ${company.id}:`, err);
+    }
+  }
+}
+
+export default {
+  fetch: app.fetch,
+  scheduled: (event, env, ctx) => ctx.waitUntil(runDailyDigest(env)),
+};

@@ -8,6 +8,13 @@ directory = "./dist"
 not_found_handling = "single-page-application"
 run_worker_first = ["/api/*"]
 
+# Daily digest email (see runDailyDigest in worker/index.js).
+# Cron runs in UTC: 11:00 UTC = 6am US Central during DST / 5am in winter.
+# Test locally with: wrangler dev --test-scheduled  then
+#   curl "http://localhost:8787/__scheduled?cron=0+11+*+*+*"
+[triggers]
+crons = ["0 11 * * *"]
+
 [vars]
 # Used to build links in emails (invite accept links). Not secret.
 PUBLIC_APP_URL = "https://ezyfriday.com"

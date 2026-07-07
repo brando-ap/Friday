@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../api.js';
+import RequesterPicker, { ClientPicker } from './RequesterPicker.jsx';
 
 const STATUSES = [
   ['not_started', 'Not started'],
@@ -8,8 +9,16 @@ const STATUSES = [
   ['done', 'Done'],
 ];
 const LOCATIONS = ['', 'warehouse', 'main', 'other'];
+const RECURRENCES = [
+  ['', 'No repeat'],
+  ['daily', 'Daily'],
+  ['weekly', 'Weekly'],
+  ['monthly', 'Monthly'],
+];
 
-export default function TaskDetail({ taskId, onChanged, onClose }) {
+// refreshKey: bumped by the parent when the task changed outside this pane
+// (e.g. the `e` status-cycle shortcut) so we refetch.
+export default function TaskDetail({ taskId, refreshKey, onChanged, onClose, requesters = [], clients = [], members = [] }) {
   const [task, setTask] = useState(null);
   const [note, setNote] = useState('');
   const [step, setStep] = useState('');
@@ -20,7 +29,7 @@ export default function TaskDetail({ taskId, onChanged, onClose }) {
       return;
     }
     api.getTask(taskId).then(setTask).catch(() => setTask(null));
-  }, [taskId]);
+  }, [taskId, refreshKey]);
 
   if (taskId == null) {
     return <div className="detail empty">Select a task to see details, steps, and its activity log.</div>;
@@ -34,6 +43,8 @@ export default function TaskDetail({ taskId, onChanged, onClose }) {
     onChanged();
   };
   const patchField = (field) => patch({ [field]: task[field] ?? '' });
+
+  const pickedRequester = requesters.find((r) => r.id === task.requester_id) || null;
 
   const submitNote = async (e) => {
     e.preventDefault();
@@ -99,11 +110,42 @@ export default function TaskDetail({ taskId, onChanged, onClose }) {
         </label>
         <label>
           Requester
-          <input
-            value={task.requester || ''}
-            onChange={(e) => edit('requester', e.target.value)}
-            onBlur={() => patchField('requester')}
+          <RequesterPicker
+            requesters={requesters}
+            selection={{ requester_id: task.requester_id, client_id: task.client_id, requester: task.requester }}
+            onSelect={(sel) => patch(sel)}
+            placeholder="Pick or type a name"
           />
+        </label>
+        <label>
+          Company
+          <ClientPicker
+            clients={clients}
+            requester={pickedRequester}
+            value={task.client_id}
+            onChange={(client_id) => patch({ client_id })}
+          />
+        </label>
+        <label>
+          Assignee
+          <select
+            value={task.assignee_id || ''}
+            onChange={(e) => patch({ assignee_id: e.target.value || null })}
+          >
+            <option value="">—</option>
+            {members.map((m) => (
+              <option key={m.user_id} value={m.user_id}>{m.full_name || m.email}</option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Repeat
+          <select
+            value={task.recurrence || ''}
+            onChange={(e) => patch({ recurrence: e.target.value || null })}
+          >
+            {RECURRENCES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+          </select>
         </label>
         <label>
           For
@@ -177,8 +219,11 @@ export default function TaskDetail({ taskId, onChanged, onClose }) {
         </form>
         <ul>
           {task.activity.map((a) => (
-            <li key={a.id}>
-              <span className="a-time">{new Date(a.created_at).toLocaleString()}</span>
+            <li key={a.id} className={a.kind === 'system' ? 'a-system' : ''}>
+              <span className="a-time">
+                {new Date(a.created_at).toLocaleString()}
+                {a.kind === 'system' && <span className="a-auto"> · auto</span>}
+              </span>
               <span className="a-note">{a.note}</span>
             </li>
           ))}

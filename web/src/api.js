@@ -51,6 +51,20 @@ export const api = {
   setSubtaskDone: (id, done) => req(`/subtasks/${id}`, { method: 'PATCH', body: JSON.stringify({ done }) }),
   deleteSubtask: (id) => req(`/subtasks/${id}`, { method: 'DELETE' }),
 
+  importTasks: (rows) => req('/tasks/import', { method: 'POST', body: JSON.stringify({ rows }) }),
+
+  // Clients are shown as "Companies" in the UI — see the naming note in schema.sql.
+  listClients: () => req('/clients'),
+  createClient: (data) => req('/clients', { method: 'POST', body: JSON.stringify(data) }),
+  updateClient: (id, data) => req(`/clients/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  deleteClient: (id) => req(`/clients/${id}`, { method: 'DELETE' }),
+  listRequesters: () => req('/requesters'),
+  createRequester: (data) => req('/requesters', { method: 'POST', body: JSON.stringify(data) }),
+  updateRequester: (id, data) => req(`/requesters/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  deleteRequester: (id) => req(`/requesters/${id}`, { method: 'DELETE' }),
+
+  getDashboard: () => req('/dashboard'),
+
   getTeam: () => req('/team'),
   inviteMember: (email) => req('/team/invites', { method: 'POST', body: JSON.stringify({ email }) }),
   revokeInvite: (id) => req(`/team/invites/${id}`, { method: 'DELETE' }),
