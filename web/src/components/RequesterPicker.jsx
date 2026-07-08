@@ -98,13 +98,41 @@ export default function RequesterPicker({ requesters, selection, onSelect, place
   );
 }
 
-// Company (client) select that respects the picked requester: limited to the
-// requester's companies when one is picked (auto-filled/static when they have
-// exactly one), all companies otherwise.
+// Company (client) picker that respects the picked requester. With a
+// requester picked, their companies show as checkable chips (a task links to
+// one company, so checking a chip unchecks the previous one). With no
+// requester, it stays a plain dropdown over all companies. Button chips, not
+// <input type="checkbox">: TaskDetail renders this inside a <label>, and a
+// nested label/input would steal that label's clicks.
 export function ClientPicker({ clients, requester, value, onChange }) {
   const allowed = requester ? clients.filter((c) => requester.client_ids.includes(c.id)) : clients;
-  if (requester && allowed.length === 1) {
-    return <span className="rp-client">{allowed[0].name}</span>;
+  if (requester) {
+    if (allowed.length === 0) {
+      return (
+        <span className="rp-client">
+          No companies for {requester.name} yet — assign some on the People page.
+        </span>
+      );
+    }
+    return (
+      <div className="cp-chips">
+        {allowed.map((c) => {
+          const on = value === c.id;
+          return (
+            <button
+              type="button"
+              key={c.id}
+              className={`cp-chip ${on ? 'cp-on' : ''}`}
+              aria-pressed={on}
+              onClick={() => onChange(on ? null : c.id)}
+            >
+              <span className="cp-box" aria-hidden="true">{on ? '✓' : ''}</span>
+              {c.name}
+            </button>
+          );
+        })}
+      </div>
+    );
   }
   return (
     <select value={value ?? ''} onChange={(e) => onChange(e.target.value ? Number(e.target.value) : null)}>

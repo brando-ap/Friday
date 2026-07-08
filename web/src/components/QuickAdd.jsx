@@ -48,7 +48,7 @@ export default function QuickAdd({ onCreate, requesters, clients, titleRef }) {
       <div className="qa-req">
         <RequesterPicker requesters={requesters} selection={sel} onSelect={setSel} />
       </div>
-      {pickedRequester && pickedRequester.client_ids.length > 1 && (
+      {pickedRequester && pickedRequester.client_ids.length > 0 && (
         <ClientPicker
           clients={clients}
           requester={pickedRequester}

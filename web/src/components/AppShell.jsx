@@ -9,6 +9,7 @@ const NAV = [
   ['calendar', 'Calendar', '/app/calendar'],
   ['dashboard', 'Dashboard', '/app/dashboard'],
   ['companies', 'Companies', '/app/companies'],
+  ['people', 'People', '/app/people'],
   ['team', 'Team', '/app/team'],
 ];
 

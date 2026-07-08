@@ -577,6 +577,49 @@ body {
   background: var(--bg);
 }
 
+/* Checkable company chips shown once a requester is picked. `button.cp-chip`
+   (not bare `.cp-chip`) so these outweigh the `.quick-add button` accent
+   styling when the chips render inside the quick-add form. */
+.cp-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+button.cp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--muted);
+  background: var(--bg);
+  border: 1px solid var(--control-border);
+  border-radius: 999px;
+  padding: 6px 12px 6px 8px;
+  cursor: pointer;
+}
+button.cp-chip:hover { border-color: var(--accent); background: var(--bg); }
+.cp-chip .cp-box {
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--control-border);
+  border-radius: 4px;
+  background: var(--panel);
+  font-size: 10px;
+  line-height: 12px;
+  text-align: center;
+  color: #fff;
+}
+button.cp-chip.cp-on,
+button.cp-chip.cp-on:hover {
+  color: var(--text);
+  border-color: var(--accent);
+  background: var(--panel);
+}
+.cp-chip.cp-on .cp-box {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
 /* ---- Filter bar ---- */
 .filter-bar {
   display: flex;
@@ -1068,6 +1111,20 @@ body {
 .co-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 4px; }
 .co-head .team-name { font-size: 16px; }
 .co-actions { display: flex; gap: 4px; white-space: nowrap; }
+/* Per-company / per-person request tally — links to the filtered board. */
+.req-count {
+  font-size: 12px;
+  white-space: nowrap;
+  color: var(--muted);
+  border: 1px solid var(--control-border);
+  border-radius: 999px;
+  padding: 4px 10px;
+  text-decoration: none;
+}
+.req-count:hover { border-color: var(--accent); color: var(--text); }
+.team-list li .co-edit { flex: 1; }
+/* Name block fills the row so the tally + actions hug the right edge. */
+.companies-page .team-list li > div:first-child { flex: 1; }
 .co-edit { display: flex; gap: 8px; flex-wrap: wrap; }
 .co-edit input {
   flex: 1;

@@ -11,6 +11,7 @@ import FilterBar, { FILTER_DEFAULTS } from '../components/FilterBar.jsx';
 import ImportDialog from '../components/ImportDialog.jsx';
 import Team from './Team.jsx';
 import Companies from './Companies.jsx';
+import People from './People.jsx';
 import Calendar from './Calendar.jsx';
 import Dashboard from './Dashboard.jsx';
 
@@ -240,6 +241,7 @@ export default function TaskApp() {
 
   if (path === '/app/team') return <Team />;
   if (path === '/app/companies') return <Companies />;
+  if (path === '/app/people') return <People />;
   if (path === '/app/calendar') return <Calendar />;
   if (path === '/app/dashboard') return <Dashboard />;
 
